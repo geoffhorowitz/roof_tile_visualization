@@ -45,7 +45,7 @@ export async function POST(request: Request) {
           "cfg": 8,
           "sampler_name": "euler",
           "scheduler": "normal",
-          "denoise": 0.85,
+          "denoise": 1.0,
           "model": ["4", 0],
           "positive": ["17", 0], // Connected to positive output (index 0) of ControlNetApplyAdvanced
           "negative": ["17", 1], // Connected to negative output (index 1) of ControlNetApplyAdvanced
@@ -121,7 +121,7 @@ export async function POST(request: Request) {
       "18": {
         "class_type": "CLIPTextEncode",
         "inputs": {
-          "text": "roof",
+          "text": "roof:10",
           "clip": ["12", 1] // Uses CLIP model from SAM 3.1 checkpoint loader
         }
       },
@@ -143,7 +143,7 @@ export async function POST(request: Request) {
       "17": {
         "class_type": "ControlNetApplyAdvanced",
         "inputs": {
-          "strength": 0.8,
+          "strength": 0.45,
           "start_percent": 0.0,
           "end_percent": 1.0,
           "positive": ["6", 0],

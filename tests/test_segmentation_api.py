@@ -28,7 +28,7 @@ def test_segmentation_workflow_validation():
                 "cfg": 8,
                 "sampler_name": "euler",
                 "scheduler": "normal",
-                "denoise": 0.85,
+                "denoise": 1.0,
                 "model": ["4", 0],
                 "positive": ["17", 0],
                 "negative": ["17", 1],
@@ -104,7 +104,7 @@ def test_segmentation_workflow_validation():
         "18": {
             "class_type": "CLIPTextEncode",
             "inputs": {
-                "text": "roof",
+                "text": "roof:10",
                 "clip": ["12", 1]
             }
         },
@@ -126,7 +126,7 @@ def test_segmentation_workflow_validation():
         "17": {
             "class_type": "ControlNetApplyAdvanced",
             "inputs": {
-                "strength": 0.8,
+                "strength": 0.45,
                 "start_percent": 0.0,
                 "end_percent": 1.0,
                 "positive": ["6", 0],

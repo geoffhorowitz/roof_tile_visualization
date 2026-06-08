@@ -10,8 +10,7 @@ You have been invoked to participate in a "Divide and Conquer" workflow to build
 
 ## Important Documents
 Before taking any action, please familiarize yourself with the project by reading:
-- `agent_artifacts/2026.06.06_plan_comfyui_integration.md`: The most recent design document.
-- `agent_artifacts/2026.06.06_update_comfyui_integration.md`: An execution update of what was most recently completed.
+- The design documents in 'docs/design_plan.md` and the `agent_artifacts/` directory (especially `2026.06.06_plan_comfyui_integration.md`).
 - `walkthrough.md`: A summary of the codebase and application architecture.
 
 ## Task Delegation Rules (CRITICAL)

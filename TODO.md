@@ -46,8 +46,8 @@ This file outlines the features and fixes that are currently outstanding, their 
   The `TileSelector` component displays flat solid color squares (`colorHex`) instead of realistic thumbnail previews of the tiles.
 * **Proposed Long-Term Approach:** 
   Produce and add realistic thumbnail images.
-  - `[ ]` Generate or download realistic thumbnail images (e.g., in `.jpg` or `.webp` format) representing terracotta tiles, grey slate tiles, metal standing seam roofs, etc.
-  - `[ ]` Update `TileOption` in `TileSelector.tsx` to render these image assets.
+  - `[x]` Generate or download realistic thumbnail images (e.g., in `.jpg` or `.webp` format) representing terracotta tiles, grey slate tiles, metal standing seam roofs, etc.
+  - `[x]` Update `TileOption` in `TileSelector.tsx` to render these image assets.
 
 ## 5. README & Setup Walkthrough Upgrades
 * **Issue with Current State:** 

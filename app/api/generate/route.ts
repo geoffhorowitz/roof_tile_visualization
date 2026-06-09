@@ -1,21 +1,59 @@
 import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { createClient, isMockMode } from '../../../utils/supabase/server';
 
-
-const COMFYUI_URL = 'http://127.0.0.1:8188';
+const COMFYUI_URL = process.env.COMFYUI_URL || 'http://127.0.0.1:8188';
 
 export async function POST(request: Request) {
   try {
+    // 1. Authenticate user
+    const supabase = await createClient();
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+    if (authError || !user) {
+      return NextResponse.json({ error: 'Unauthorized: Please sign in first' }, { status: 401 });
+    }
+
     const formData = await request.formData();
     const file = formData.get('image') as File;
     const prompt = formData.get('prompt') as string;
+    const tileId = formData.get('tileId') as string;
 
     if (!file) {
       return NextResponse.json({ error: 'No image provided' }, { status: 400 });
     }
 
-    // 1. Upload original image to ComfyUI's input folder
+    // 2. Upload original image to Supabase Storage (if not in mock mode)
+    let originalImageUrl = '';
+    const fileExt = file.name.split('.').pop() || 'png';
+    const uniqueInputName = `inputs/${user.id}/${Date.now()}_original.${fileExt}`;
+
+    if (!isMockMode) {
+      const arrayBuffer = await file.arrayBuffer();
+      const fileBuffer = Buffer.from(arrayBuffer);
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('roof-visualizer')
+        .upload(uniqueInputName, fileBuffer, {
+          contentType: file.type,
+          upsert: true
+        });
+
+      if (uploadError) {
+        console.error('Supabase Storage Upload Error:', uploadError);
+        throw new Error(`Failed to upload original image: ${uploadError.message}`);
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('roof-visualizer')
+        .getPublicUrl(uniqueInputName);
+      originalImageUrl = publicUrl;
+    } else {
+      // Mock mode original URL fallback using unique name format locally
+      originalImageUrl = `/api/image?filename=${file.name}`;
+    }
+
+    // 3. Upload original image to ComfyUI's input folder
     const uploadFormData = new FormData();
     uploadFormData.append('image', file);
     uploadFormData.append('overwrite', 'true');
@@ -34,8 +72,7 @@ export async function POST(request: Request) {
     const uploadData = await uploadRes.json();
     const filename = uploadData.name;
 
-    // 2. Build the workflow JSON with a segmentation step (GroundingDINO + SAM), VAE Encode for Inpainting, and ControlNet Depth to preserve structure
-    // This targets only the roof region and uses a Depth ControlNet to lock down structural geometry.
+    // 4. Build the workflow JSON with a segmentation step, VAE Encode, and ControlNet Depth
     const workflow = {
       "3": {
         "class_type": "KSampler",
@@ -47,8 +84,8 @@ export async function POST(request: Request) {
           "scheduler": "normal",
           "denoise": 1.0,
           "model": ["4", 0],
-          "positive": ["17", 0], // Connected to positive output (index 0) of ControlNetApplyAdvanced
-          "negative": ["17", 1], // Connected to negative output (index 1) of ControlNetApplyAdvanced
+          "positive": ["17", 0],
+          "negative": ["17", 1],
           "latent_image": ["8", 0]
         }
       },
@@ -77,7 +114,7 @@ export async function POST(request: Request) {
         "inputs": {
           "pixels": ["9", 0],
           "vae": ["4", 2],
-          "mask": ["14", 0], // Connects to the native SAM3_Detect MASK output (index 0)
+          "mask": ["14", 0],
           "grow_mask_by": 6
         }
       },
@@ -122,7 +159,7 @@ export async function POST(request: Request) {
         "class_type": "CLIPTextEncode",
         "inputs": {
           "text": "roof:10",
-          "clip": ["12", 1] // Uses CLIP model from SAM 3.1 checkpoint loader
+          "clip": ["12", 1]
         }
       },
       "15": {
@@ -154,7 +191,7 @@ export async function POST(request: Request) {
       }
     };
 
-    // 3. Queue the prompt
+    // 5. Queue the prompt
     const promptRes = await fetch(`${COMFYUI_URL}/prompt`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -169,7 +206,7 @@ export async function POST(request: Request) {
     const promptData = await promptRes.json();
     const promptId = promptData.prompt_id;
 
-    // 4. Poll for completion (Server-side polling since we are running locally)
+    // 6. Poll for completion (Server-side polling)
     let isDone = false;
     let outputImageInfo: any = null;
     let pollAttempts = 0;
@@ -180,7 +217,6 @@ export async function POST(request: Request) {
       const historyData = await historyRes.json();
       
       if (historyData[promptId]) {
-        // Find the SaveImage node output (node 11 in our placeholder workflow)
         const outputs = historyData[promptId].outputs;
         for (const nodeId in outputs) {
           if (outputs[nodeId].images && outputs[nodeId].images.length > 0) {
@@ -197,20 +233,23 @@ export async function POST(request: Request) {
       throw new Error('Timeout or failed to get generated image from ComfyUI');
     }
 
-    // 5. Save output image locally to data/output/ folder as an interim step
-    console.log("ComfyUI Output Image Info:", outputImageInfo);
+    // 7. Save output image locally first
+    let generatedImageUrl = '';
+    let imageBuffer: Buffer | null = null;
+    
     try {
       const viewUrl = `${COMFYUI_URL}/view?filename=${encodeURIComponent(outputImageInfo.filename)}&subfolder=${encodeURIComponent(outputImageInfo.subfolder || '')}&type=${encodeURIComponent(outputImageInfo.type || 'output')}`;
       const imgRes = await fetch(viewUrl);
       if (imgRes.ok) {
         const arrayBuffer = await imgRes.arrayBuffer();
-        const buffer = Buffer.from(arrayBuffer);
+        imageBuffer = Buffer.from(arrayBuffer);
+        
         const outputDir = path.join(process.cwd(), 'data', 'output');
         if (!fs.existsSync(outputDir)) {
           fs.mkdirSync(outputDir, { recursive: true });
         }
         const filePath = path.join(outputDir, outputImageInfo.filename);
-        fs.writeFileSync(filePath, buffer);
+        fs.writeFileSync(filePath, imageBuffer);
         console.log(`Saved output image locally to ${filePath}`);
       } else {
         console.error(`Failed to fetch output image from ComfyUI to save locally: ${imgRes.statusText}`);
@@ -218,13 +257,54 @@ export async function POST(request: Request) {
     } catch (saveError) {
       console.error('Failed to save output image locally:', saveError);
     }
-    
-    const params = new URLSearchParams();
-    params.append('filename', outputImageInfo.filename);
-    if (outputImageInfo.subfolder) params.append('subfolder', outputImageInfo.subfolder);
-    params.append('type', outputImageInfo.type);
 
-    return NextResponse.json({ url: `/api/image?${params.toString()}` });
+    if (!imageBuffer) {
+      throw new Error('Failed to retrieve generated image data from ComfyUI');
+    }
+
+    // 8. Upload generated result to Supabase Storage (if not in mock mode)
+    const uniqueOutputName = `outputs/${user.id}/${Date.now()}_generated.png`;
+    
+    if (!isMockMode) {
+      const { data: outputUploadData, error: outputUploadError } = await supabase.storage
+        .from('roof-visualizer')
+        .upload(uniqueOutputName, imageBuffer, {
+          contentType: 'image/png',
+          upsert: true
+        });
+
+      if (outputUploadError) {
+        console.error('Supabase Storage Output Upload Error:', outputUploadError);
+        throw new Error(`Failed to upload generated image: ${outputUploadError.message}`);
+      }
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('roof-visualizer')
+        .getPublicUrl(uniqueOutputName);
+      generatedImageUrl = publicUrl;
+
+      // 9. Insert generation record into database
+      const { error: dbError } = await supabase.from('generations').insert({
+        user_id: user.id,
+        tile_id: tileId || null,
+        prompt: prompt,
+        original_image_url: originalImageUrl,
+        generated_image_url: generatedImageUrl
+      });
+
+      if (dbError) {
+        console.error('Failed to record generation in database:', dbError);
+      }
+    } else {
+      // Mock mode returns the local proxy URL
+      const params = new URLSearchParams();
+      params.append('filename', outputImageInfo.filename);
+      if (outputImageInfo.subfolder) params.append('subfolder', outputImageInfo.subfolder);
+      params.append('type', outputImageInfo.type);
+      generatedImageUrl = `/api/image?${params.toString()}`;
+    }
+
+    return NextResponse.json({ url: generatedImageUrl });
 
   } catch (error: any) {
     console.error('Generation Error:', error);

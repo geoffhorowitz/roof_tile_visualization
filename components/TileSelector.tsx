@@ -1,7 +1,8 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { TILE_CATALOG, TileOption } from '../config/tileCatalog';
+import { createClient } from '../utils/supabase/client';
 
 // Re-export TileOption to ensure backwards compatibility with page.tsx
 export type { TileOption };
@@ -12,13 +13,52 @@ interface TileSelectorProps {
 }
 
 export default function TileSelector({ selectedTileId, onTileSelect }: TileSelectorProps) {
+  const [tiles, setTiles] = useState<TileOption[]>(TILE_CATALOG);
+
+  useEffect(() => {
+    const fetchTiles = async () => {
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from('roof_tiles')
+          .select('*');
+
+        if (error) {
+          console.warn("Failed to fetch tiles from Supabase, using local fallback.");
+          return;
+        }
+
+        if (data && data.length > 0) {
+          const mappedTiles: TileOption[] = data.map((t: any) => ({
+            id: t.id,
+            name: t.name,
+            category: t.category,
+            colorHex: t.color_hex,
+            prompt: t.prompt,
+            thumbnailUrl: t.thumbnail_url
+          }));
+          setTiles(mappedTiles);
+        }
+      } catch (err) {
+        console.warn("Error loading roof tiles from DB:", err);
+      }
+    };
+
+    fetchTiles();
+  }, []);
+
   // Extract categories dynamically from the catalog data to ensure modularity
-  const categories = Array.from(new Set(TILE_CATALOG.map((tile) => tile.category)));
+  const categories = Array.from(new Set(tiles.map((tile) => tile.category)));
 
   // Set default category to the first category if available
-  const [selectedCategory, setSelectedCategory] = useState<string>(
-    categories[0] || 'Architectural Tiles'
-  );
+  const [selectedCategory, setSelectedCategory] = useState<string>('Architectural Tiles');
+
+  // Sync selectedCategory when categories load
+  useEffect(() => {
+    if (categories.length > 0 && !categories.includes(selectedCategory)) {
+      setSelectedCategory(categories[0]);
+    }
+  }, [tiles]);
 
   // Tracks which thumbnails have completed loading to apply a smooth fade-in
   const [loadedImages, setLoadedImages] = useState<Record<string, boolean>>({});
@@ -28,7 +68,7 @@ export default function TileSelector({ selectedTileId, onTileSelect }: TileSelec
   };
 
   // Filter tiles based on selected category
-  const filteredTiles = TILE_CATALOG.filter((tile) => tile.category === selectedCategory);
+  const filteredTiles = tiles.filter((tile) => tile.category === selectedCategory);
 
   return (
     <div className="glass-panel">

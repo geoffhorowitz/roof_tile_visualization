@@ -38,7 +38,7 @@ def test_segmentation_workflow_validation():
         "4": {
             "class_type": "CheckpointLoaderSimple",
             "inputs": {
-                "ckpt_name": "sd_xl_base_1.0_inpainting_0.1.safetensors"
+                "ckpt_name": "sd_xl_base_1.0.safetensors"
             }
         },
         "6": {

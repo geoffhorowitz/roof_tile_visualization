@@ -15,7 +15,7 @@ export const TILE_CATALOG: TileOption[] = [
     category: 'Architectural Tiles',
     colorHex: '#8b3a2b',
     prompt: 'red terracotta spanish roof tiles',
-    thumbnailUrl: '/architectural/style_terracotta_red.png',
+    thumbnailUrl: '/architectural/terracotta_red.png',
   },
   {
     id: 'arch-slate',
@@ -23,7 +23,7 @@ export const TILE_CATALOG: TileOption[] = [
     category: 'Architectural Tiles',
     colorHex: '#4a5568',
     prompt: 'dark grey slate roof tiles',
-    thumbnailUrl: '/architectural/style_slate_grey.png',
+    thumbnailUrl: '/architectural/slate_grey.png',
   },
   {
     id: 'arch-clay',
@@ -31,7 +31,7 @@ export const TILE_CATALOG: TileOption[] = [
     category: 'Architectural Tiles',
     colorHex: '#cd5c5c',
     prompt: 'mediterranean clay barrel roof tiles',
-    thumbnailUrl: '/architectural/style_mediterranean_clay.png',
+    thumbnailUrl: '/architectural/mediterranean_clay.png',
   },
   {
     id: 'arch-metal',
@@ -39,7 +39,7 @@ export const TILE_CATALOG: TileOption[] = [
     category: 'Architectural Tiles',
     colorHex: '#2f4f4f',
     prompt: 'forest green metal standing seam roof',
-    thumbnailUrl: '/architectural/style_forest_green_metal.png',
+    thumbnailUrl: '/architectural/forest_green_metal.png',
   },
   {
     id: 'arch-wood',
@@ -47,7 +47,7 @@ export const TILE_CATALOG: TileOption[] = [
     category: 'Architectural Tiles',
     colorHex: '#8b7355',
     prompt: 'weathered wood cedar shake roof',
-    thumbnailUrl: '/architectural/style_cedar_shake.png',
+    thumbnailUrl: '/architectural/cedar_shake.png',
   },
 
   // --- GAF Timberline HDZ Asphalt Shingles ---

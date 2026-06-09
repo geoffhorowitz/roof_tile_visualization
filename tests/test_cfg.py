@@ -5,24 +5,17 @@ import random
 import time
 import os
 import sys
+import PIL.Image
+import numpy as np
 
 COMFYUI_SERVER = "http://127.0.0.1:8188"
 
 def upload_image(image_path):
-    """Uploads an image to ComfyUI."""
-    print(f"Uploading {image_path} to ComfyUI...")
-    if not os.path.exists(image_path):
-        print(f"Error: {image_path} does not exist.")
-        sys.exit(1)
-        
-    boundary = '----WebKitFormBoundary7MA4YWxkTrZu0gW'
-    headers = {'Content-Type': f'multipart/form-data; boundary={boundary}'}
-    
     with open(image_path, 'rb') as f:
         file_content = f.read()
-        
+    boundary = '----WebKitFormBoundary7MA4YWxkTrZu0gW'
+    headers = {'Content-Type': f'multipart/form-data; boundary={boundary}'}
     filename = os.path.basename(image_path)
-    
     body = (
         f"--{boundary}\r\n"
         f'Content-Disposition: form-data; name="image"; filename="{filename}"\r\n'
@@ -32,28 +25,19 @@ def upload_image(image_path):
         f'Content-Disposition: form-data; name="overwrite"\r\n\r\n'
         f"true\r\n--{boundary}--\r\n"
     ).encode('utf-8')
-    
     req = urllib.request.Request(f"{COMFYUI_SERVER}/upload/image", data=body, headers=headers)
-    try:
-        response = urllib.request.urlopen(req)
-        res_data = json.loads(response.read().decode('utf-8'))
-        print(f"Uploaded successfully. ComfyUI filename: {res_data['name']}")
-        return res_data['name']
-    except Exception as e:
-        print(f"Failed to upload image: {e}")
-        sys.exit(1)
+    response = urllib.request.urlopen(req)
+    res_data = json.loads(response.read().decode('utf-8'))
+    return res_data['name']
 
-def run_inpainting(uploaded_filename, sam_prompt, controlnet_strength, output_path, tile_prompt="red terracotta spanish roof tiles"):
-    """Runs the inpainting workflow with specified parameters."""
-    print(f"Running inpainting: SAM='{sam_prompt}', ControlNet={controlnet_strength}, Output={output_path}")
-    
+def run_inpainting(uploaded_filename, seed, cfg, controlnet_strength, tile_prompt):
     workflow = {
         "3": {
             "class_type": "KSampler",
             "inputs": {
-                "seed": random.randint(1, 10000000),
+                "seed": seed,
                 "steps": 20,
-                "cfg": 8,
+                "cfg": cfg,
                 "sampler_name": "euler",
                 "scheduler": "normal",
                 "denoise": 1.0,
@@ -66,7 +50,7 @@ def run_inpainting(uploaded_filename, sam_prompt, controlnet_strength, output_pa
         "4": {
             "class_type": "CheckpointLoaderSimple",
             "inputs": {
-                "ckpt_name": "sd_xl_base_1.0.safetensors"
+                "ckpt_name": "sd_xl_base_1.0_inpainting_0.1.safetensors"
             }
         },
         "6": {
@@ -108,7 +92,7 @@ def run_inpainting(uploaded_filename, sam_prompt, controlnet_strength, output_pa
         "11": {
             "class_type": "SaveImage",
             "inputs": {
-                "filename_prefix": "roof_debug",
+                "filename_prefix": "roof_cfg_test",
                 "images": ["10", 0]
             }
         },
@@ -132,7 +116,7 @@ def run_inpainting(uploaded_filename, sam_prompt, controlnet_strength, output_pa
         "18": {
             "class_type": "CLIPTextEncode",
             "inputs": {
-                "text": sam_prompt,
+                "text": "roof:10",
                 "clip": ["12", 1]
             }
         },
@@ -165,69 +149,67 @@ def run_inpainting(uploaded_filename, sam_prompt, controlnet_strength, output_pa
         }
     }
     
-    # Send request
     data = json.dumps({"prompt": workflow}).encode('utf-8')
     req = urllib.request.Request(f"{COMFYUI_SERVER}/prompt", data=data)
     req.add_header('Content-Type', 'application/json')
+    response = urllib.request.urlopen(req)
+    result = json.loads(response.read().decode('utf-8'))
+    prompt_id = result["prompt_id"]
     
-    try:
-        response = urllib.request.urlopen(req)
-        result = json.loads(response.read().decode('utf-8'))
-        prompt_id = result["prompt_id"]
-        print(f"Prompt queued. ID: {prompt_id}")
-    except Exception as e:
-        print(f"Failed to queue prompt: {e}")
-        sys.exit(1)
-        
-    # Poll for completion
     is_done = False
     output_filename = None
-    poll_attempts = 0
-    while not is_done and poll_attempts < 60:
+    while not is_done:
         time.sleep(2)
-        poll_attempts += 1
-        try:
-            history_req = urllib.request.urlopen(f"{COMFYUI_SERVER}/history/{prompt_id}")
-            history_data = json.loads(history_req.read().decode('utf-8'))
-            if prompt_id in history_data:
-                outputs = history_data[prompt_id].get("outputs", {})
-                for node_id, out in outputs.items():
-                    if "images" in out and len(out["images"]) > 0:
-                        output_filename = out["images"][0]["filename"]
-                        is_done = True
-                        break
-        except Exception as e:
-            print(f"Polling warning: {e}")
-            
-    if not is_done or not output_filename:
-        print("Timeout waiting for generation.")
-        sys.exit(1)
-        
-    # Download output image
+        history_req = urllib.request.urlopen(f"{COMFYUI_SERVER}/history/{prompt_id}")
+        history_data = json.loads(history_req.read().decode('utf-8'))
+        if prompt_id in history_data:
+            outputs = history_data[prompt_id].get("outputs", {})
+            for node_id, out in outputs.items():
+                if "images" in out and len(out["images"]) > 0:
+                    output_filename = out["images"][0]["filename"]
+                    is_done = True
+                    break
+                    
     view_url = f"{COMFYUI_SERVER}/view?filename={urllib.parse.quote(output_filename)}&type=output"
-    try:
-        img_res = urllib.request.urlopen(view_url)
-        img_data = img_res.read()
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, 'wb') as f:
-            f.write(img_data)
-        print(f"Saved generated image to {output_path}")
-    except Exception as e:
-        print(f"Failed to download generated image: {e}")
-        sys.exit(1)
+    img_res = urllib.request.urlopen(view_url)
+    return img_res.read()
 
-if __name__ == "__main__":
-    if len(sys.argv) < 4:
-        print("Usage: python3 run_real_inpainting.py <sam_prompt> <controlnet_strength> <output_path> [tile_prompt]")
-        sys.exit(1)
-        
-    sam_prompt = sys.argv[1]
-    controlnet_strength = float(sys.argv[2])
-    output_path = sys.argv[3]
-    tile_prompt = sys.argv[4] if len(sys.argv) > 4 else "red terracotta spanish roof tiles"
+def analyze_redness(img_data):
+    # Load image from bytes
+    import io
+    img = PIL.Image.open(io.BytesIO(img_data)).convert('RGB')
+    orig = PIL.Image.open("data/house.jpg").convert('RGB')
+    mask = PIL.Image.open("data/sam_mask.png").convert('L')
     
-    # Upload house image
+    img_arr = np.array(img)
+    orig_arr = np.array(orig)
+    mask_arr = np.array(mask)
+    
+    mask_indices = mask_arr > 127
+    mask_count = np.sum(mask_indices)
+    
+    if mask_count > 0:
+        mod = img_arr[mask_indices]
+        reddish = (mod[:, 0].astype(int) - mod[:, 1].astype(int) > 30) & (mod[:, 0].astype(int) - mod[:, 2].astype(int) > 50)
+        return mask_count, mod.mean(axis=0), reddish.mean() * 100
+    return 0, np.zeros(3), 0.0
+
+if __name__ == '__main__':
     img_name = upload_image("data/house.jpg")
     
-    # Run inpainting
-    run_inpainting(img_name, sam_prompt, controlnet_strength, output_path, tile_prompt)
+    test_cases = [
+        # (seed, cfg, controlnet_strength, tile_prompt, name)
+        (4474664, 10.0, 0.45, "red terracotta spanish roof tiles", "CFG 10.0"),
+        (4474664, 12.0, 0.45, "red terracotta spanish roof tiles", "CFG 12.0"),
+        (4474664, 14.0, 0.45, "red terracotta spanish roof tiles", "CFG 14.0"),
+        (4474664, 14.0, 0.35, "red terracotta spanish roof tiles", "CFG 14.0 + CN 0.35"),
+    ]
+    
+    for seed, cfg, cn_strength, prompt, name in test_cases:
+        print(f"\n--- Testing case: {name} (CFG {cfg}, CN {cn_strength}) ---")
+        try:
+            img_bytes = run_inpainting(img_name, seed, cfg, cn_strength, prompt)
+            mod_pixels, mean_rgb, red_pct = analyze_redness(img_bytes)
+            print(f"Result -> Mask size: {mod_pixels} | Mean RGB in mask: {mean_rgb} | Reddish%: {red_pct:.2f}%")
+        except Exception as e:
+            print(f"Failed for case {name}: {e}")

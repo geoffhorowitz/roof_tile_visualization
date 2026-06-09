@@ -123,6 +123,11 @@ export default function TileSelector({ selectedTileId, onTileSelect }: TileSelec
                     alt={tile.name}
                     className="tile-image"
                     onLoad={() => handleImageLoad(tile.id)}
+                    ref={(el) => {
+                      if (el && el.complete && !loadedImages[tile.id]) {
+                        setTimeout(() => handleImageLoad(tile.id), 0);
+                      }
+                    }}
                     style={{
                       opacity: isLoaded ? 1 : 0,
                       transition: 'opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1)',

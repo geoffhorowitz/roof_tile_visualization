@@ -33,9 +33,9 @@ export default function TileSelector({ selectedTileId, onTileSelect }: TileSelec
             id: t.id,
             name: t.name,
             category: t.category,
-            colorHex: t.color_hex,
+            colorHex: t.color_hex || t.colorHex || '#000000',
             prompt: t.prompt,
-            thumbnailUrl: t.thumbnail_url
+            thumbnailUrl: t.thumbnail_url || t.thumbnailUrl || ''
           }));
           setTiles(mappedTiles);
         }

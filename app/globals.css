@@ -97,6 +97,16 @@ h1 {
   transform: translateY(1px);
 }
 
+.btn-primary:disabled {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  border: 1px solid var(--glass-border);
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none !important;
+  opacity: 0.6;
+}
+
 /* Upload Area */
 .upload-area {
   border: 2px dashed var(--glass-border);

@@ -22,7 +22,7 @@ export default function Home() {
   // Layout Tab and Slider States
   const [activeControlTab, setActiveControlTab] = useState<'upload' | 'style'>('upload');
   const [activeResultTab, setActiveResultTab] = useState<'result' | 'history'>('result');
-  const [useSlider, setUseSlider] = useState(true);
+  const [useSlider, setUseSlider] = useState(false);
   const [showBeforeImage, setShowBeforeImage] = useState(false);
 
   const router = useRouter();

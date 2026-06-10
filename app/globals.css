@@ -229,16 +229,27 @@ h1 {
 /* Category Tabs & Scroll Container for Tile Catalog */
 .category-tabs {
   display: flex;
+  flex-wrap: wrap;
   gap: var(--spacing-sm);
   margin-bottom: var(--spacing-sm);
   border-bottom: 1px solid var(--glass-border);
   padding-bottom: var(--spacing-sm);
-  overflow-x: auto;
-  scrollbar-width: none; /* Hide scrollbar for clean tabs */
+  max-height: 85px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .category-tabs::-webkit-scrollbar {
-  display: none; /* Hide scrollbar for Chrome/Safari */
+  width: 4px;
+}
+
+.category-tabs::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.category-tabs::-webkit-scrollbar-thumb {
+  background: var(--glass-border);
+  border-radius: var(--radius-full);
 }
 
 .tab-button {
@@ -374,5 +385,128 @@ h1 {
   color: #60a5fa;
   text-decoration: underline;
 }
+
+/* Premium Panel Tabs */
+.tabs-container {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--glass-border);
+  padding-bottom: var(--spacing-sm);
+}
+
+.tabs-container .tab-button {
+  flex: 1;
+  text-align: center;
+}
+
+/* Premium Controls: Slider Toggle & Before/After Checkbox */
+.controls-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--glass-border);
+  padding: 8px 16px;
+  border-radius: var(--radius-md);
+  margin-bottom: var(--spacing-md);
+  flex-wrap: wrap;
+  gap: var(--spacing-sm);
+}
+
+.switch-container {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 44px;
+  height: 22px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider-round {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.1);
+  transition: .3s;
+  border-radius: 34px;
+  border: 1px solid var(--glass-border);
+}
+
+.slider-round:before {
+  position: absolute;
+  content: "";
+  height: 14px;
+  width: 14px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: .3s;
+  border-radius: 50%;
+}
+
+input:checked + .slider-round {
+  background-color: var(--accent-primary);
+  border-color: var(--accent-primary);
+}
+
+input:checked + .slider-round:before {
+  transform: translateX(22px);
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-custom {
+  appearance: none;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--glass-border);
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.checkbox-custom:checked {
+  background-color: var(--success);
+  border-color: var(--success);
+}
+
+.checkbox-custom:checked:after {
+  content: '\2713';
+  font-size: 11px;
+  color: white;
+  font-weight: bold;
+}
+
 
 

@@ -20,6 +20,22 @@ export async function POST(request: Request) {
     const prompt = formData.get('prompt') as string;
     const tileId = formData.get('tileId') as string;
 
+    const originalFileName = (formData.get('originalFileName') as string) || 'house.jpg';
+    const tileCategory = (formData.get('tileCategory') as string) || 'Architectural Tiles';
+    const tileName = (formData.get('tileName') as string) || 'Custom';
+    const timestamp = (formData.get('timestamp') as string) || '';
+
+    // Build output filename according to convention:
+    // {original_image_name_without_extension}_{tile style}_{tile name}_{timestamp}.png
+    const originalBaseName = originalFileName.replace(/\.[^/.]+$/, "");
+    const sanitizedCategory = tileCategory.replace(/[^a-zA-Z0-9_ -]/g, "");
+    const sanitizedTileName = tileName.replace(/[^a-zA-Z0-9_ -]/g, "");
+    const sanitizedTimestamp = timestamp.replace(/[^a-zA-Z0-9_.-]/g, "");
+    
+    // Fallback timestamp if not provided by client
+    const activeTimestamp = sanitizedTimestamp || new Date().toISOString().replace(/[:.]/g, "-");
+    const outputFileName = `${originalBaseName}_${sanitizedCategory}_${sanitizedTileName}_${activeTimestamp}.png`;
+
     if (!file) {
       return NextResponse.json({ error: 'No image provided' }, { status: 400 });
     }
@@ -248,7 +264,7 @@ export async function POST(request: Request) {
         if (!fs.existsSync(outputDir)) {
           fs.mkdirSync(outputDir, { recursive: true });
         }
-        const filePath = path.join(outputDir, outputImageInfo.filename);
+        const filePath = path.join(outputDir, outputFileName);
         fs.writeFileSync(filePath, imageBuffer);
         console.log(`Saved output image locally to ${filePath}`);
       } else {
@@ -263,7 +279,7 @@ export async function POST(request: Request) {
     }
 
     // 8. Upload generated result to Supabase Storage (if not in mock mode)
-    const uniqueOutputName = `outputs/${user.id}/${Date.now()}_generated.png`;
+    const uniqueOutputName = `outputs/${user.id}/${outputFileName}`;
     
     if (!isMockMode) {
       const { data: outputUploadData, error: outputUploadError } = await supabase.storage
@@ -298,9 +314,8 @@ export async function POST(request: Request) {
     } else {
       // Mock mode returns the local proxy URL
       const params = new URLSearchParams();
-      params.append('filename', outputImageInfo.filename);
-      if (outputImageInfo.subfolder) params.append('subfolder', outputImageInfo.subfolder);
-      params.append('type', outputImageInfo.type);
+      params.append('filename', outputFileName);
+      params.append('type', 'output');
       generatedImageUrl = `/api/image?${params.toString()}`;
     }
 

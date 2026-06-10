@@ -8,6 +8,7 @@ import ImageSlider from '../components/ImageSlider';
 import HistoryPanel from '../components/HistoryPanel';
 import { createClient } from '../utils/supabase/client';
 import { TILE_CATALOG } from '../config/tileCatalog';
+import { formatLocalTimestamp } from '../utils/historyUtils';
 
 export default function Home() {
   const [originalImage, setOriginalImage] = useState<File | null>(null);
@@ -17,6 +18,13 @@ export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  // Layout Tab and Slider States
+  const [activeControlTab, setActiveControlTab] = useState<'upload' | 'style'>('upload');
+  const [activeResultTab, setActiveResultTab] = useState<'result' | 'history'>('result');
+  const [useSlider, setUseSlider] = useState(true);
+  const [showBeforeImage, setShowBeforeImage] = useState(false);
+
   const router = useRouter();
 
   useEffect(() => {
@@ -36,6 +44,7 @@ export default function Home() {
     setOriginalImage(file);
     setOriginalPreviewUrl(previewUrl);
     setGeneratedImageUrl(null); // Reset generated image when a new one is uploaded
+    setActiveControlTab('style'); // Auto-switch to Select Style tab
   };
 
   const handleGenerate = async () => {
@@ -44,10 +53,17 @@ export default function Home() {
     setIsGenerating(true);
 
     try {
+      const now = new Date();
+      const localTimestamp = formatLocalTimestamp(now);
+
       const formData = new FormData();
       formData.append('image', originalImage);
       formData.append('prompt', selectedTile.prompt);
       formData.append('tileId', selectedTile.id);
+      formData.append('originalFileName', originalImage.name);
+      formData.append('tileCategory', selectedTile.category);
+      formData.append('tileName', selectedTile.name);
+      formData.append('timestamp', localTimestamp);
 
       const response = await fetch('/api/generate', {
         method: 'POST',
@@ -61,6 +77,23 @@ export default function Home() {
       }
 
       setGeneratedImageUrl(data.url);
+
+      // Persist to local mock database client-side if we are in mock mode
+      const isMock = !process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      if (isMock) {
+        try {
+          const supabase = createClient();
+          await supabase.from('generations').insert({
+            tile_id: selectedTile.id,
+            prompt: selectedTile.prompt,
+            original_image_url: originalPreviewUrl,
+            generated_image_url: data.url
+          });
+        } catch (dbErr) {
+          console.warn('Failed to insert mock generation:', dbErr);
+        }
+      }
+
       setRefreshTrigger(prev => prev + 1); // Reload history logs
 
     } catch (error: any) {
@@ -94,6 +127,9 @@ export default function Home() {
         setSelectedTile(matchedTile);
       }
     }
+
+    // Automatically focus results tab when viewing a past rendering
+    setActiveResultTab('result');
   };
 
   return (
@@ -123,25 +159,45 @@ export default function Home() {
       </header>
 
       <div className="grid-layout">
-        {/* Sidebar Controls */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
-          <div className="glass-panel">
-            <h2>1. Upload Photo</h2>
-            <ImageUploader
-              onImageSelected={handleImageSelected}
-              isLoading={isGenerating}
-            />
-            {originalImage && (
-              <p style={{ color: 'var(--success)', marginTop: '0.5rem', fontSize: '0.9rem' }}>
-                ✓ {originalImage.name} uploaded successfully
-              </p>
-            )}
+        {/* Combined Sidebar Controls */}
+        <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', minHeight: '520px', gap: 'var(--spacing-md)' }}>
+          <div className="tabs-container">
+            <button
+              className={`tab-button ${activeControlTab === 'upload' ? 'active' : ''}`}
+              onClick={() => setActiveControlTab('upload')}
+              type="button"
+            >
+              Upload Photo
+            </button>
+            <button
+              className={`tab-button ${activeControlTab === 'style' ? 'active' : ''}`}
+              onClick={() => setActiveControlTab('style')}
+              type="button"
+            >
+              Select Roof Style
+            </button>
           </div>
 
-          <TileSelector
-            selectedTileId={selectedTile?.id || null}
-            onTileSelect={setSelectedTile}
-          />
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            {activeControlTab === 'upload' ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
+                <ImageUploader
+                  onImageSelected={handleImageSelected}
+                  isLoading={isGenerating}
+                />
+                {originalImage && (
+                  <p style={{ color: 'var(--success)', marginTop: '0.5rem', fontSize: '0.9rem', textAlign: 'center' }}>
+                    ✓ {originalImage.name} uploaded successfully
+                  </p>
+                )}
+              </div>
+            ) : (
+              <TileSelector
+                selectedTileId={selectedTile?.id || null}
+                onTileSelect={setSelectedTile}
+              />
+            )}
+          </div>
 
           <button
             className="btn-primary"
@@ -151,33 +207,99 @@ export default function Home() {
           >
             {isGenerating ? 'Generating...' : '3. Visualize New Roof'}
           </button>
-
-          {/* History Log panel */}
-          <HistoryPanel onSelect={handleHistorySelect} refreshTrigger={refreshTrigger} />
         </div>
 
-        {/* Main Display Area */}
-        <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column' }}>
-          <h2>4. Result</h2>
-          <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '400px', backgroundColor: 'rgba(0,0,0,0.2)', borderRadius: 'var(--radius-md)' }}>
-            {!originalPreviewUrl ? (
-              <p style={{ color: 'var(--text-secondary)' }}>Upload an image to see the result</p>
-            ) : isGenerating ? (
-              <div style={{ textAlign: 'center' }}>
-                <div className="loader" style={{ marginBottom: '1rem' }}></div>
-                <p>Applying AI magic...</p>
-              </div>
-            ) : generatedImageUrl ? (
-              <ImageSlider beforeImage={originalPreviewUrl} afterImage={generatedImageUrl} />
-            ) : (
-              <div className="comparison-container fade-in">
-                <img src={originalPreviewUrl} alt="Original House" />
-                <div style={{ position: 'absolute', top: 10, right: 10, background: 'rgba(0,0,0,0.6)', padding: '4px 12px', borderRadius: '20px', color: 'white', fontSize: '0.8rem', backdropFilter: 'blur(4px)' }}>
-                  Before
-                </div>
-              </div>
-            )}
+        {/* Tabbed Results Display Area */}
+        <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
+          <div className="tabs-container" style={{ width: '100%', maxWidth: '350px' }}>
+            <button
+              className={`tab-button ${activeResultTab === 'result' ? 'active' : ''}`}
+              onClick={() => setActiveResultTab('result')}
+              type="button"
+            >
+              Result
+            </button>
+            <button
+              className={`tab-button ${activeResultTab === 'history' ? 'active' : ''}`}
+              onClick={() => setActiveResultTab('history')}
+              type="button"
+            >
+              Render History
+            </button>
           </div>
+
+          {activeResultTab === 'result' ? (
+            <div style={{ display: 'flex', flexDirection: 'column', flex: 1 }}>
+              {/* Optional Slider Controls */}
+              {originalPreviewUrl && generatedImageUrl && !isGenerating && (
+                <div className="controls-row">
+                  <label className="switch-container">
+                    <span className="switch">
+                      <input
+                        type="checkbox"
+                        checked={useSlider}
+                        onChange={(e) => setUseSlider(e.target.checked)}
+                      />
+                      <span className="slider-round"></span>
+                    </span>
+                    Compare with Slider
+                  </label>
+
+                  {!useSlider && (
+                    <label className="checkbox-container">
+                      <input
+                        type="checkbox"
+                        className="checkbox-custom"
+                        checked={showBeforeImage}
+                        onChange={(e) => setShowBeforeImage(e.target.checked)}
+                      />
+                      Show Before Image
+                    </label>
+                  )}
+                </div>
+              )}
+
+              <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '400px', backgroundColor: 'rgba(0,0,0,0.2)', borderRadius: 'var(--radius-md)', padding: 'var(--spacing-md)' }}>
+                {!originalPreviewUrl ? (
+                  <p style={{ color: 'var(--text-secondary)' }}>Upload an image to see the result</p>
+                ) : isGenerating ? (
+                  <div style={{ textAlign: 'center' }}>
+                    <div className="loader" style={{ marginBottom: '1rem' }}></div>
+                    <p>Applying AI magic...</p>
+                  </div>
+                ) : generatedImageUrl ? (
+                  useSlider ? (
+                    <ImageSlider beforeImage={originalPreviewUrl} afterImage={generatedImageUrl} />
+                  ) : showBeforeImage ? (
+                    <div className="comparison-container fade-in" style={{ width: '100%' }}>
+                      <img src={originalPreviewUrl} alt="Original House" style={{ pointerEvents: 'none' }} />
+                      <div style={{ position: 'absolute', top: 10, left: 10, background: 'rgba(0,0,0,0.6)', padding: '4px 12px', borderRadius: '20px', color: 'white', fontSize: '0.8rem', backdropFilter: 'blur(4px)', zIndex: 10 }}>
+                        Before
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="comparison-container fade-in" style={{ width: '100%' }}>
+                      <img src={generatedImageUrl} alt="Generated House" style={{ pointerEvents: 'none' }} />
+                      <div style={{ position: 'absolute', top: 10, right: 10, background: 'rgba(0,0,0,0.6)', padding: '4px 12px', borderRadius: '20px', color: 'white', fontSize: '0.8rem', backdropFilter: 'blur(4px)', zIndex: 10 }}>
+                        After
+                      </div>
+                    </div>
+                  )
+                ) : (
+                  <div className="comparison-container fade-in" style={{ width: '100%' }}>
+                    <img src={originalPreviewUrl} alt="Original House" style={{ pointerEvents: 'none' }} />
+                    <div style={{ position: 'absolute', top: 10, left: 10, background: 'rgba(0,0,0,0.6)', padding: '4px 12px', borderRadius: '20px', color: 'white', fontSize: '0.8rem', backdropFilter: 'blur(4px)', zIndex: 10 }}>
+                      Before
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div style={{ flex: 1 }}>
+              <HistoryPanel onSelect={handleHistorySelect} refreshTrigger={refreshTrigger} />
+            </div>
+          )}
         </div>
       </div>
     </main>

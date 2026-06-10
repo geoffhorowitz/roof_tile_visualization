@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { createClient, isMockMode } from '../utils/supabase/client';
+import { getHistoryLabelFromUrl } from '../utils/historyUtils';
 
 interface Generation {
   id: string;
@@ -78,21 +79,24 @@ export default function HistoryPanel({ onSelect, refreshTrigger }: HistoryPanelP
 
   if (isLoading && generations.length === 0) {
     return (
-      <div className="glass-panel" style={{ padding: 'var(--spacing-md)' }}>
-        <h3>History</h3>
+      <div style={{ padding: 'var(--spacing-md)' }}>
         <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>Loading past runs...</p>
       </div>
     );
   }
 
   if (generations.length === 0) {
-    return null;
+    return (
+      <div style={{ padding: 'var(--spacing-md)', textAlign: 'center', color: 'var(--text-secondary)' }}>
+        <p>No generations found yet. Start by visualizing a roof!</p>
+      </div>
+    );
   }
 
   return (
-    <div className="glass-panel" style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-md)' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={{ marginBottom: 0 }}>Generation History</h2>
+        <h3 style={{ marginBottom: 0 }}>Generation History</h3>
         {isMockMode && (
           <span style={{ fontSize: '0.75rem', color: 'var(--success)', background: 'rgba(16, 185, 129, 0.1)', padding: '2px 8px', borderRadius: '10px' }}>
             Local Mock DB
@@ -102,7 +106,7 @@ export default function HistoryPanel({ onSelect, refreshTrigger }: HistoryPanelP
       
       {error && <p style={{ color: 'red', fontSize: '0.85rem' }}>{error}</p>}
       
-      <div className="tile-scroll-container" style={{ maxHeight: '350px' }}>
+      <div className="tile-scroll-container" style={{ maxHeight: '450px' }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing-sm)' }}>
           {generations.map((g) => {
             const dateStr = new Date(g.created_at).toLocaleDateString(undefined, {
@@ -111,13 +115,12 @@ export default function HistoryPanel({ onSelect, refreshTrigger }: HistoryPanelP
               hour: '2-digit',
               minute: '2-digit',
             });
-            const tileName = g.roof_tiles?.name || 'Custom style';
+            const renderLabel = getHistoryLabelFromUrl(g.generated_image_url) || g.roof_tiles?.name || 'Custom style';
 
             return (
               <div
                 key={g.id}
                 onClick={() => onSelect(g.original_image_url, g.generated_image_url, g.tile_id)}
-                className="glass-panel"
                 style={{
                   padding: '8px',
                   borderRadius: 'var(--radius-md)',
@@ -146,9 +149,20 @@ export default function HistoryPanel({ onSelect, refreshTrigger }: HistoryPanelP
                   />
                 </div>
                 
-                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', minWidth: 0, paddingRight: '24px' }}>
-                  <div style={{ fontWeight: 600, fontSize: '0.9rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', color: 'white' }}>
-                    {tileName}
+                <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', minWidth: 0, paddingRight: '24px', flex: 1 }}>
+                  <div 
+                    style={{ 
+                      fontWeight: 600, 
+                      fontSize: '0.85rem', 
+                      color: 'white',
+                      wordBreak: 'break-all',
+                      overflowWrap: 'break-word',
+                      lineHeight: '1.2',
+                      marginBottom: '4px'
+                    }}
+                    title={renderLabel}
+                  >
+                    {renderLabel}
                   </div>
                   <div style={{ fontSize: '0.75rem', color: 'var(--text-secondary)' }}>
                     {dateStr}
@@ -173,7 +187,8 @@ export default function HistoryPanel({ onSelect, refreshTrigger }: HistoryPanelP
                     alignItems: 'center',
                     justifyContent: 'center',
                     fontSize: '0.75rem',
-                    transition: 'background 0.2s, color 0.2s'
+                    transition: 'background 0.2s, color 0.2s',
+                    zIndex: 5
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.background = 'rgba(239, 68, 68, 0.3)';

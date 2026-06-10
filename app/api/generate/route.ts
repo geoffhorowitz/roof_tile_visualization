@@ -114,14 +114,14 @@ export async function POST(request: Request) {
       "6": {
         "class_type": "CLIPTextEncode",
         "inputs": {
-          "text": prompt,
+          "text": `photorealistic house roof inpainting, ${prompt}, detailed shingle texture, high quality photography`,
           "clip": ["4", 1]
         }
       },
       "7": {
         "class_type": "CLIPTextEncode",
         "inputs": {
-          "text": "text, watermark, ugly, deformed, blurry",
+          "text": "text, watermark, ugly, deformed, blurry, forest, trees, nature, landscape, grass, leaves, branches, birch trees, vegetation, outdoors scene",
           "clip": ["4", 1]
         }
       },

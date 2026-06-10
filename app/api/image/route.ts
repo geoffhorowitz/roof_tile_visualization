@@ -2,7 +2,9 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 
-const COMFYUI_URL = 'http://127.0.0.1:8188';
+import { configs } from '../../../utils/configLoader';
+
+const COMFYUI_URL = configs.comfyui_server;
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
@@ -14,8 +16,8 @@ export async function GET(request: Request) {
     return new NextResponse('Filename is required', { status: 400 });
   }
 
-  // Check if file is stored locally in data/output/
-  const outputDir = path.join(process.cwd(), 'data', 'output');
+  // Check if file is stored locally in configured output_dir
+  const outputDir = path.join(process.cwd(), ...configs.local_paths.output_dir.split('/'));
   const localFilePath = path.join(outputDir, filename);
 
   if (fs.existsSync(localFilePath)) {

@@ -2,8 +2,9 @@ import { NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import { createClient, isMockMode } from '../../../utils/supabase/server';
+import { configs } from '../../../utils/configLoader';
 
-const COMFYUI_URL = process.env.COMFYUI_URL || 'http://127.0.0.1:8188';
+const COMFYUI_URL = process.env.COMFYUI_URL || configs.comfyui_server;
 
 export async function POST(request: Request) {
   try {
@@ -49,7 +50,7 @@ export async function POST(request: Request) {
       const arrayBuffer = await file.arrayBuffer();
       const fileBuffer = Buffer.from(arrayBuffer);
       const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('roof-visualizer')
+        .from(configs.supabase_settings.bucket_name)
         .upload(uniqueInputName, fileBuffer, {
           contentType: file.type,
           upsert: true
@@ -61,7 +62,7 @@ export async function POST(request: Request) {
       }
 
       const { data: { publicUrl } } = supabase.storage
-        .from('roof-visualizer')
+        .from(configs.supabase_settings.bucket_name)
         .getPublicUrl(uniqueInputName);
       originalImageUrl = publicUrl;
     } else {
@@ -94,11 +95,11 @@ export async function POST(request: Request) {
         "class_type": "KSampler",
         "inputs": {
           "seed": Math.floor(Math.random() * 10000000),
-          "steps": 20,
-          "cfg": 8,
-          "sampler_name": "euler",
-          "scheduler": "normal",
-          "denoise": 1.0,
+          "steps": configs.sampler_settings.steps,
+          "cfg": configs.sampler_settings.cfg,
+          "sampler_name": configs.sampler_settings.sampler_name,
+          "scheduler": configs.sampler_settings.scheduler,
+          "denoise": configs.sampler_settings.denoise,
           "model": ["4", 0],
           "positive": ["17", 0],
           "negative": ["17", 1],
@@ -108,20 +109,20 @@ export async function POST(request: Request) {
       "4": {
         "class_type": "CheckpointLoaderSimple",
         "inputs": {
-          "ckpt_name": "sd_xl_base_1.0.safetensors"
+          "ckpt_name": configs.sdxl_checkpoint
         }
       },
       "6": {
         "class_type": "CLIPTextEncode",
         "inputs": {
-          "text": `photorealistic house roof inpainting, ${prompt}, detailed shingle texture, high quality photography`,
+          "text": configs.prompts.positive_prompt_template.replace('{prompt}', prompt),
           "clip": ["4", 1]
         }
       },
       "7": {
         "class_type": "CLIPTextEncode",
         "inputs": {
-          "text": "text, watermark, ugly, deformed, blurry, forest, trees, nature, landscape, grass, leaves, branches, birch trees, vegetation, outdoors scene",
+          "text": configs.prompts.negative_prompt,
           "clip": ["4", 1]
         }
       },
@@ -131,7 +132,7 @@ export async function POST(request: Request) {
           "pixels": ["9", 0],
           "vae": ["4", 2],
           "mask": ["14", 0],
-          "grow_mask_by": 6
+          "grow_mask_by": configs.sam_settings.grow_mask_by
         }
       },
       "9": {
@@ -150,14 +151,14 @@ export async function POST(request: Request) {
       "11": {
         "class_type": "SaveImage",
         "inputs": {
-          "filename_prefix": "roof_tile_visualizer",
+          "filename_prefix": configs.local_paths.save_filename_prefix,
           "images": ["10", 0]
         }
       },
       "12": {
         "class_type": "CheckpointLoaderSimple",
         "inputs": {
-          "ckpt_name": "sam3.1_multiplex_fp16.safetensors"
+          "ckpt_name": configs.sam_checkpoint
         }
       },
       "14": {
@@ -166,9 +167,9 @@ export async function POST(request: Request) {
           "model": ["12", 0],
           "image": ["9", 0],
           "conditioning": ["18", 0],
-          "threshold": 0.3,
-          "refine_iterations": 2,
-          "individual_masks": false
+          "threshold": configs.sam_settings.threshold,
+          "refine_iterations": configs.sam_settings.refine_iterations,
+          "individual_masks": configs.sam_settings.individual_masks
         }
       },
       "18": {
@@ -181,24 +182,24 @@ export async function POST(request: Request) {
       "15": {
         "class_type": "ControlNetLoader",
         "inputs": {
-          "control_net_name": "diffusion_pytorch_model.safetensors"
+          "control_net_name": configs.controlnet_checkpoint
         }
       },
       "16": {
         "class_type": "MiDaS-DepthMapPreprocessor",
         "inputs": {
           "image": ["9", 0],
-          "a": 6.283185307179586,
-          "bg_threshold": 0.1,
-          "resolution": 512
+          "a": configs.midas_settings.a,
+          "bg_threshold": configs.midas_settings.bg_threshold,
+          "resolution": configs.midas_settings.resolution
         }
       },
       "17": {
         "class_type": "ControlNetApplyAdvanced",
         "inputs": {
-          "strength": 0.45,
-          "start_percent": 0.0,
-          "end_percent": 1.0,
+          "strength": configs.controlnet_settings.strength,
+          "start_percent": configs.controlnet_settings.start_percent,
+          "end_percent": configs.controlnet_settings.end_percent,
           "positive": ["6", 0],
           "negative": ["7", 0],
           "control_net": ["15", 0],
@@ -260,7 +261,7 @@ export async function POST(request: Request) {
         const arrayBuffer = await imgRes.arrayBuffer();
         imageBuffer = Buffer.from(arrayBuffer);
         
-        const outputDir = path.join(process.cwd(), 'data', 'output');
+        const outputDir = path.join(process.cwd(), ...configs.local_paths.output_dir.split('/'));
         if (!fs.existsSync(outputDir)) {
           fs.mkdirSync(outputDir, { recursive: true });
         }
@@ -283,7 +284,7 @@ export async function POST(request: Request) {
     
     if (!isMockMode) {
       const { data: outputUploadData, error: outputUploadError } = await supabase.storage
-        .from('roof-visualizer')
+        .from(configs.supabase_settings.bucket_name)
         .upload(uniqueOutputName, imageBuffer, {
           contentType: 'image/png',
           upsert: true
@@ -295,7 +296,7 @@ export async function POST(request: Request) {
       }
 
       const { data: { publicUrl } } = supabase.storage
-        .from('roof-visualizer')
+        .from(configs.supabase_settings.bucket_name)
         .getPublicUrl(uniqueOutputName);
       generatedImageUrl = publicUrl;
 

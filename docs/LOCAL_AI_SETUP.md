@@ -29,7 +29,7 @@ We recommend [ComfyUI](https://github.com/comfyanonymous/ComfyUI) for its lightw
    ```
 
 4. **Download Required Models & Install Custom Nodes**:
-   - Save the SDXL Inpainting Checkpoint (e.g., `sd_xl_base_1.0_inpainting_0.1.safetensors`) into `ComfyUI/models/checkpoints/`.
+   - Save the standard SDXL Base checkpoint (e.g., `sd_xl_base_1.0.safetensors`) into `ComfyUI/models/checkpoints/`.
    - Save the SAM 3.1 multiplex model `sam3.1_multiplex_fp16.safetensors` into `ComfyUI/models/checkpoints/`.
    - Save the ControlNet [ControlNet SDXL Depth](https://huggingface.co/diffusers/controlnet-depth-sdxl-1.0/resolve/main/diffusion_pytorch_model.safetensors) into `ComfyUI/models/controlnet/`.
    - Install the **`comfyui_controlnet_aux`** (ControlNet Preprocessors) custom node pack (using the ComfyUI Manager or git clone; needed for the MiDaS depth preprocessor).

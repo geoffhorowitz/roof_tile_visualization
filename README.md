@@ -15,7 +15,9 @@ A premium Next.js web application designed to allow users to upload an image of 
 
 ## Local AI Setup (ComfyUI Backend)
 
-For a complete step-by-step model setup guide, see [LOCAL_AI_SETUP.md](file:///c:/Users/geoff/github_repos/personal/roof_tile_visualizer/docs/LOCAL_AI_SETUP.md).
+For a complete step-by-step model setup guide, see [LOCAL_AI_SETUP.md](file:///home/gh-wsl/github_repos/personal/roof_tile_visualizer/docs/LOCAL_AI_SETUP.md).
+
+For production Vertex AI Custom Prediction Endpoint deployment, see [VERTEX_AI_SETUP.md](file:///home/gh-wsl/github_repos/personal/roof_tile_visualizer/docs/VERTEX_AI_SETUP.md).
 
 1. Clone and install ComfyUI:
    ```bash
@@ -34,7 +36,7 @@ For a complete step-by-step model setup guide, see [LOCAL_AI_SETUP.md](file:///c
    pip install -r requirements.txt
    ```
 2. Download model checkpoints:
-   - Save the SDXL Inpainting checkpoint (e.g., `sd_xl_base_1.0_inpainting_0.1.safetensors`) into `ComfyUI/models/checkpoints/`
+   - Save the standard SDXL Base checkpoint (e.g., `sd_xl_base_1.0.safetensors`) into `ComfyUI/models/checkpoints/`
    - Save the SAM 3.1 multiplex model `sam3.1_multiplex_fp16.safetensors` into `ComfyUI/models/checkpoints/` (required for native SAM 3.1 segmentation)
    - Save [ControlNet SDXL Depth](https://huggingface.co/diffusers/controlnet-depth-sdxl-1.0/resolve/main/diffusion_pytorch_model.safetensors) into `ComfyUI/models/controlnet/`
 3. Install Custom Node Extensions:

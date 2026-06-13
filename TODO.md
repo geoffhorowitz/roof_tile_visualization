@@ -29,10 +29,10 @@ This file outlines the features and fixes that are currently outstanding, their 
   - `[x]` Save generated output images to the local `data/output/` folder and serve them via `/api/image` from disk to prevent loss when ComfyUI restarts or runs offline.
 * **Proposed Long-Term Approach:**
   Configure Supabase as the core backend:
-  - `[ ]` Install `@supabase/supabase-js`.
-  - `[ ]` Implement Supabase Auth with custom styled login/signup screens, utilizing Next.js App Router middleware to protect the `/api/generate` and dashboard routes.
-  - `[ ]` Create SQL tables in PostgreSQL (`profiles`, `roof_tiles`, `generations`).
-  - `[ ]` Create Supabase Storage buckets to save the uploaded house images and the generated output files returned by ComfyUI, preventing local file loss.
+  - `[x]` Install `@supabase/supabase-js`.
+  - `[x]` Implement Supabase Auth with custom styled login/signup screens, utilizing Next.js App Router middleware to protect the `/api/generate` and dashboard routes.
+  - `[x]` Create SQL tables in PostgreSQL (`profiles`, `roof_tiles`, `generations`).
+  - `[x]` Create Supabase Storage buckets to save the uploaded house images and the generated output files returned by ComfyUI, preventing local file loss.
 
 ## 3. Interactive Before/After Image Comparison Slider
 * **Issue with Current State:** 

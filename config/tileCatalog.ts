@@ -56,7 +56,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Barkwood',
     category: 'GAF Timberline HDZ',
     colorHex: '#5c4a3c',
-    prompt: 'barkwood, dark brown asphalt shingles roof, textured brown shingles',
+    prompt: 'dark brown asphalt shingle roof, textured dark bark brown shingles, GAF Timberline barkwood color',
     thumbnailUrl: '/shingles/GAF Timberline HDZ Barkwood.avif',
   },
   {
@@ -64,7 +64,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Birchwood',
     category: 'GAF Timberline HDZ',
     colorHex: '#bfae9e',
-    prompt: 'birchwood, light grey asphalt shingles roof, silver grey shingles',
+    prompt: 'light silver grey asphalt shingle roof, pale warm grey shingles, soft taupe grey roof tiles, GAF Timberline birchwood color',
     thumbnailUrl: '/shingles/GAF Timberline HDZ Birchwood.avif',
   },
   {
@@ -72,7 +72,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Biscayne Blue',
     category: 'GAF Timberline HDZ',
     colorHex: '#3b5a75',
-    prompt: 'biscayne blue, slate blue asphalt shingles roof, navy blue color',
+    prompt: 'slate blue asphalt shingle roof, deep navy blue grey shingles, steel blue roof tiles, GAF Timberline biscayne blue color',
     thumbnailUrl: '/shingles/GAF Timberline HDZ Biscayne Blue.avif',
   },
   {
@@ -80,7 +80,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Chestnut Valley',
     category: 'GAF Timberline HDZ',
     colorHex: '#4a3b2c',
-    prompt: 'chestnut valley, deep brown asphalt shingles roof, dark chestnut brown',
+    prompt: 'deep dark chestnut brown asphalt shingle roof, rich warm brown shingles, dark brown roof tiles, GAF Timberline chestnut valley color',
     thumbnailUrl: '/shingles/GAF Timberline HDZ Chestnut Valley.avif',
   },
   {
@@ -88,7 +88,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Cliffside',
     category: 'GAF Timberline HDZ',
     colorHex: '#6b7075',
-    prompt: 'cliffside grey, medium grey asphalt shingles roof, stone grey',
+    prompt: 'medium stone grey asphalt shingle roof, cool neutral grey shingles, textured grey roof tiles, GAF Timberline cliffside color',
     thumbnailUrl: '/shingles/GAF Timberline HDZ Cliffside.avif',
   },
   {
@@ -96,7 +96,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Copper Canyon',
     category: 'GAF Timberline HDZ',
     colorHex: '#804a30',
-    prompt: 'copper canyon, reddish brown asphalt shingles roof, warm copper terracotta brown',
+    prompt: 'reddish brown asphalt shingle roof, warm copper terracotta brown shingles, burnt sienna roof tiles, GAF Timberline copper canyon color',
     thumbnailUrl: '/shingles/GAF Timberline HDZ Copper Canyon.avif',
   },
   {
@@ -104,7 +104,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Driftwood',
     category: 'GAF Timberline HDZ',
     colorHex: '#7c7267',
-    prompt: 'driftwood, greyish brown asphalt shingles roof, weathered driftwood color',
+    prompt: 'greyed brown asphalt shingle roof, warm taupe grey-brown shingles, weathered muted brown roof tiles, GAF Timberline driftwood color',
     thumbnailUrl: '/shingles/GAF Timberline HDZ Driftwood.avif',
   },
   {
@@ -112,7 +112,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Fox Hollow',
     category: 'GAF Timberline HDZ',
     colorHex: '#8c9094',
-    prompt: 'fox hollow, light grey asphalt shingles roof, pale grey shingles',
+    prompt: 'pale light grey asphalt shingle roof, soft cool grey shingles, light pewter grey roof tiles, GAF Timberline fox hollow color',
     thumbnailUrl: '/shingles/GAF Timberline HDZ Fox Hollow.avif',
   },
   {
@@ -120,7 +120,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Golden Amber',
     category: 'GAF Timberline HDZ',
     colorHex: '#a67438',
-    prompt: 'golden amber, warm golden brown asphalt shingles roof, amber honey color',
+    prompt: 'warm golden brown asphalt shingle roof, honey amber colored shingles, rich ochre gold brown roof tiles, GAF Timberline golden amber color',
     thumbnailUrl: '/shingles/GAF Timberline HDZ Golden Amber.avif',
   },
   {
@@ -128,7 +128,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Hickory',
     category: 'GAF Timberline HDZ',
     colorHex: '#3b2d21',
-    prompt: 'hickory, dark brown asphalt shingles roof, deep hickory brown',
+    prompt: 'very dark brown asphalt shingle roof, deep espresso brown shingles, near-black dark brown roof tiles, GAF Timberline hickory color',
     thumbnailUrl: '/shingles/GAF Timberline HDZ Hickory.avif',
   },
   {
@@ -136,7 +136,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Hunter Green',
     category: 'GAF Timberline HDZ',
     colorHex: '#26402d',
-    prompt: 'hunter green, dark forest green asphalt shingles roof, deep green color',
+    prompt: 'dark forest green asphalt shingle roof, deep hunter green shingles, dark emerald green roof tiles, GAF Timberline hunter green color',
     thumbnailUrl: '/shingles/GAF Timberline HDZ Hunter Green.avif',
   },
   {
@@ -144,7 +144,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Midnight Mesa',
     category: 'GAF Timberline HDZ',
     colorHex: '#2c2826',
-    prompt: 'midnight mesa, dark brown asphalt shingles roof, near-black charcoal brown',
+    prompt: 'near-black charcoal brown asphalt shingle roof, very dark warm grey-brown shingles, dark charcoal roof tiles, GAF Timberline midnight mesa color',
     thumbnailUrl: '/shingles/GAF Timberline HDZ Midnight Mesa.avif',
   },
   {
@@ -152,7 +152,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Mission Brown',
     category: 'GAF Timberline HDZ',
     colorHex: '#403024',
-    prompt: 'mission brown, dark soil brown asphalt shingles roof, warm brown',
+    prompt: 'dark soil brown asphalt shingle roof, warm deep brown shingles, rich dark umber brown roof tiles, GAF Timberline mission brown color',
     thumbnailUrl: '/shingles/GAF Timberline HDZ Mission Brown.avif',
   },
   {
@@ -160,7 +160,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Oyster Gray',
     category: 'GAF Timberline HDZ',
     colorHex: '#a8aba6',
-    prompt: 'oyster gray, light grey asphalt shingles roof, pale oyster grey',
+    prompt: 'pale light grey asphalt shingle roof, soft warm grey shingles, oyster white-grey roof tiles, GAF Timberline oyster gray color',
     thumbnailUrl: '/shingles/GAF Timberline HDZ Oyster Gray.avif',
   },
   {
@@ -168,7 +168,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Patriot Red',
     category: 'GAF Timberline HDZ',
     colorHex: '#7a2b2d',
-    prompt: 'patriot red, deep brick red asphalt shingles roof, dark red color',
+    prompt: 'deep brick red asphalt shingle roof, dark crimson red shingles, rich dark wine red roof tiles, GAF Timberline patriot red color',
     thumbnailUrl: '/shingles/GAF Timberline HDZ Patriot Red.avif',
   },
   {
@@ -176,7 +176,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Pewter Gray',
     category: 'GAF Timberline HDZ',
     colorHex: '#575a5e',
-    prompt: 'pewter gray, dark grey asphalt shingles roof, charcoal pewter grey',
+    prompt: 'dark charcoal grey asphalt shingle roof, deep pewter grey shingles, medium dark grey roof tiles, GAF Timberline pewter gray color',
     thumbnailUrl: '/shingles/GAF Timberline HDZ Pewter Gray.avif',
   },
   {
@@ -184,7 +184,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Shakewood',
     category: 'GAF Timberline HDZ',
     colorHex: '#9e8e78',
-    prompt: 'shakewood, light brown asphalt shingles roof, sandy wood brown',
+    prompt: 'light sandy wood brown asphalt shingle roof, warm tan-brown shingles, medium beige brown roof tiles, GAF Timberline shakewood color',
     thumbnailUrl: '/shingles/GAF Timberline HDZ Shakewood.avif',
   },
   {
@@ -192,7 +192,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Sierra Sand',
     category: 'GAF Timberline HDZ',
     colorHex: '#aba291',
-    prompt: 'sierra sand, beige asphalt shingles roof, sandy tan color',
+    prompt: 'sandy beige asphalt shingle roof, warm sand tan shingles, light desert tan roof tiles, GAF Timberline sierra sand color',
     thumbnailUrl: '/shingles/GAF Timberline HDZ Sierra Sand.avif',
   },
   {
@@ -200,7 +200,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Sunset Brick',
     category: 'GAF Timberline HDZ',
     colorHex: '#944b36',
-    prompt: 'sunset brick, reddish terracotta asphalt shingles roof, warm brick red',
+    prompt: 'warm terracotta brick red asphalt shingle roof, reddish orange-brown shingles, clay brick red roof tiles, GAF Timberline sunset brick color',
     thumbnailUrl: '/shingles/GAF Timberline HDZ Sunset Brick.avif',
   },
   {
@@ -208,7 +208,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Weathered Wood',
     category: 'GAF Timberline HDZ',
     colorHex: '#6b5d52',
-    prompt: 'weathered wood, brown asphalt shingles roof, rustic weathered wood color',
+    prompt: 'rustic brown asphalt shingle roof, weathered medium brown shingles, warm grey-brown aged wood roof tiles, GAF Timberline weathered wood color',
     thumbnailUrl: '/shingles/GAF Timberline HDZ Weathered Wood.avif',
   },
   {
@@ -216,7 +216,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Williamsburg Slate',
     category: 'GAF Timberline HDZ',
     colorHex: '#48525c',
-    prompt: 'williamsburg slate, blue-grey asphalt shingles roof, slate blue',
+    prompt: 'blue-grey slate asphalt shingle roof, cool grey-blue shingles, slate blue charcoal roof tiles, GAF Timberline williamsburg slate color',
     thumbnailUrl: '/shingles/GAF Timberline HDZ Williamsburg Slate.avif',
   },
 
@@ -226,7 +226,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Autumn Brown',
     category: 'Owens Corning Supreme',
     colorHex: '#5c4333',
-    prompt: 'autumn brown, warm brown asphalt shingles roof, autumn foliage brown',
+    prompt: 'warm medium brown asphalt shingle roof, rich autumn brown shingles, earthy warm brown roof tiles, Owens Corning autumn brown color',
     thumbnailUrl: '/shingles/Owens Corning Supreme Autumn Brown.avif',
   },
   {
@@ -234,7 +234,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Brownwood',
     category: 'Owens Corning Supreme',
     colorHex: '#4a382c',
-    prompt: 'brownwood, dark brown asphalt shingles roof, wood brown',
+    prompt: 'deep dark brown asphalt shingle roof, rich dark chocolate brown shingles, dark wood brown roof tiles, Owens Corning brownwood color',
     thumbnailUrl: '/shingles/Owens Corning Supreme Brownwood.avif',
   },
   {
@@ -242,7 +242,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Desert Tan',
     category: 'Owens Corning Supreme',
     colorHex: '#a39178',
-    prompt: 'desert tan, sandy beige asphalt shingles roof, tan color',
+    prompt: 'sandy tan beige asphalt shingle roof, warm light tan shingles, desert sand beige roof tiles, Owens Corning desert tan color',
     thumbnailUrl: '/shingles/Owens Corning Supreme Desert Tan.avif',
   },
   {
@@ -250,7 +250,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Driftwood',
     category: 'Owens Corning Supreme',
     colorHex: '#6e665a',
-    prompt: 'driftwood, greyish brown asphalt shingles roof, weathered wood',
+    prompt: 'warm grey-brown asphalt shingle roof, muted taupe brown shingles, weathered medium grey-brown roof tiles, Owens Corning driftwood color',
     thumbnailUrl: '/shingles/Owens Corning Supreme Driftwood.avif',
   },
   {
@@ -258,7 +258,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Estate Gray',
     category: 'Owens Corning Supreme',
     colorHex: '#5d6166',
-    prompt: 'estate gray, medium grey asphalt shingles roof, slate grey',
+    prompt: 'medium charcoal grey asphalt shingle roof, cool dark grey shingles, slate grey roof tiles, Owens Corning estate gray color',
     thumbnailUrl: '/shingles/Owens Corning Supreme Estate Gray.avif',
   },
   {
@@ -266,7 +266,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Onyx Black',
     category: 'Owens Corning Supreme',
     colorHex: '#1f2021',
-    prompt: 'onyx black, deep dark black asphalt shingles roof, charcoal black',
+    prompt: 'near-black charcoal asphalt shingle roof, very dark black shingles, jet black roof tiles, Owens Corning onyx black color',
     thumbnailUrl: '/shingles/Owens Corning Supreme Onyx Black.avif',
   },
   {
@@ -274,7 +274,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Shasta White',
     category: 'Owens Corning Supreme',
     colorHex: '#e3e5e6',
-    prompt: 'shasta white, bright clean white asphalt shingles roof, light grey shadows, white color',
+    prompt: 'bright clean white asphalt shingle roof, light white-grey shingles, pale off-white roof tiles with light grey shadows, Owens Corning shasta white color',
     thumbnailUrl: '/shingles/Owens Corning Supreme Shasta White.avif',
   },
   {
@@ -282,7 +282,7 @@ export const TILE_CATALOG: TileOption[] = [
     name: 'Teak',
     category: 'Owens Corning Supreme',
     colorHex: '#453526',
-    prompt: 'teak, dark teak brown asphalt shingles roof, deep brown',
+    prompt: 'dark teak brown asphalt shingle roof, deep warm dark brown shingles, rich espresso brown roof tiles, Owens Corning teak color',
     thumbnailUrl: '/shingles/Owens Corning Supreme Teak.avif',
   },
 ];

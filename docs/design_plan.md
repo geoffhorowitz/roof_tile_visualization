@@ -8,9 +8,9 @@ This document outlines the architecture, tech stack, and implementation steps fo
 
 ## Open Questions
 > [!NOTE]
-> **Vertex AI (GCP) for Production**: Yes, you are absolutely right! Google Cloud's Vertex AI Model Garden now has native integrations with Hugging Face, allowing us to easily deploy open-source models (like Stable Diffusion or ControlNet) to Vertex endpoints. Since you have GCP credits, this is the perfect solution for production to avoid out-of-pocket costs.
+> **Agent Platform (GCP) for Production**: Yes, you are absolutely right! Google Cloud's Model Garden on the Gemini Enterprise Agent Platform (formerly Vertex AI) now has native integrations with Hugging Face, allowing us to easily deploy open-source models (like Stable Diffusion or ControlNet) to Agent Platform endpoints. Since you have GCP credits, this is the perfect solution for production to avoid out-of-pocket costs.
 > 
-> **Recommendation**: Let's build and test the pipeline entirely on your local RTX 3060 (12GB VRAM) for zero-cost, rapid development. Once the application works flawlessly locally, we will deploy the exact same Hugging Face models to a Vertex AI endpoint using your GCP credits for production.
+> **Recommendation**: Let's build and test the pipeline entirely on your local RTX 3060 (12GB VRAM) for zero-cost, rapid development. Once the application works flawlessly locally, we will deploy the exact same Hugging Face models to an Agent Platform endpoint using your GCP credits for production.
 
 ## Proposed Architecture
 
@@ -30,7 +30,7 @@ This document outlines the architecture, tech stack, and implementation steps fo
 - **Hosting**: Vercel (for frontend and serverless API endpoints).
 
 ### 3. AI Image Processing
-- **Approach**: Local AI Image-to-Image Generation (Inpainting) using your RTX 3060 (12GB VRAM) for testing, with a direct migration path to Vertex AI (via Hugging Face on Model Garden) for production.
+- **Approach**: Local AI Image-to-Image Generation (Inpainting) using your RTX 3060 (12GB VRAM) for testing, with a direct migration path to Agent Platform (via Hugging Face on Model Garden) for production.
 - **Workflow**:
   1. User uploads house image.
   2. Next.js API sends image to your local AI instance (e.g., ComfyUI API or Automatic1111) to create a "mask" of the existing roof using a segmentation model.

@@ -4,9 +4,16 @@ import json
 import random
 import time
 import os
+import sys
 import PIL.Image
 
-COMFYUI_SERVER = "http://127.0.0.1:8188"
+# Ensure parent directory is in sys.path so utils can be imported
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from utils.config_loader import get_flat_config
+
+# Load configuration values
+config = get_flat_config()
+COMFYUI_SERVER = config.get("comfyui_server", "http://127.0.0.1:8188")
 
 def upload_image(image_path):
     with open(image_path, 'rb') as f:
@@ -34,11 +41,11 @@ def run_inpainting(uploaded_filename, seed, prompt):
         "class_type": "KSampler",
         "inputs": {
           "seed": seed,
-          "steps": 20,
-          "cfg": 8,
-          "sampler_name": "euler",
-          "scheduler": "normal",
-          "denoise": 1.0,
+          "steps": int(config.get("sampler_settings.steps", 20)),
+          "cfg": float(config.get("sampler_settings.cfg", 8.0)),
+          "sampler_name": config.get("sampler_settings.sampler_name", "euler"),
+          "scheduler": config.get("sampler_settings.scheduler", "normal"),
+          "denoise": float(config.get("sampler_settings.denoise", 1.0)),
           "model": ["4", 0],
           "positive": ["17", 0],
           "negative": ["17", 1],
@@ -48,7 +55,7 @@ def run_inpainting(uploaded_filename, seed, prompt):
       "4": {
         "class_type": "CheckpointLoaderSimple",
         "inputs": {
-          "ckpt_name": "sd_xl_base_1.0.safetensors"
+          "ckpt_name": config.get("sdxl_checkpoint", "sd_xl_base_1.0.safetensors")
         }
       },
       "6": {
@@ -61,7 +68,7 @@ def run_inpainting(uploaded_filename, seed, prompt):
       "7": {
         "class_type": "CLIPTextEncode",
         "inputs": {
-          "text": "text, watermark, ugly, deformed, blurry",
+          "text": config.get("prompts.negative_prompt", "text, watermark, ugly, deformed, blurry"),
           "clip": ["4", 1]
         }
       },
@@ -71,7 +78,7 @@ def run_inpainting(uploaded_filename, seed, prompt):
           "pixels": ["9", 0],
           "vae": ["4", 2],
           "mask": ["14", 0],
-          "grow_mask_by": 6
+          "grow_mask_by": int(config.get("sam_settings.grow_mask_by", 6))
         }
       },
       "9": {
@@ -90,14 +97,14 @@ def run_inpainting(uploaded_filename, seed, prompt):
       "11": {
         "class_type": "SaveImage",
         "inputs": {
-          "filename_prefix": "roof_tile_visualizer_test",
+          "filename_prefix": config.get("local_paths.save_filename_prefix", "roof_tile_visualizer_test"),
           "images": ["10", 0]
         }
       },
       "12": {
         "class_type": "CheckpointLoaderSimple",
         "inputs": {
-          "ckpt_name": "sam3.1_multiplex_fp16.safetensors"
+          "ckpt_name": config.get("sam_checkpoint", "sam3.1_multiplex_fp16.safetensors")
         }
       },
       "14": {
@@ -106,9 +113,9 @@ def run_inpainting(uploaded_filename, seed, prompt):
           "model": ["12", 0],
           "image": ["9", 0],
           "conditioning": ["18", 0],
-          "threshold": 0.3,
-          "refine_iterations": 2,
-          "individual_masks": False
+          "threshold": float(config.get("sam_settings.threshold", 0.3)),
+          "refine_iterations": int(config.get("sam_settings.refine_iterations", 2)),
+          "individual_masks": bool(config.get("sam_settings.individual_masks", False))
         }
       },
       "18": {
@@ -121,24 +128,24 @@ def run_inpainting(uploaded_filename, seed, prompt):
       "15": {
         "class_type": "ControlNetLoader",
         "inputs": {
-          "control_net_name": "diffusion_pytorch_model.safetensors"
+          "control_net_name": config.get("controlnet_checkpoint", "diffusion_pytorch_model.safetensors")
         }
       },
       "16": {
         "class_type": "MiDaS-DepthMapPreprocessor",
         "inputs": {
           "image": ["9", 0],
-          "a": 6.283185307179586,
-          "bg_threshold": 0.1,
-          "resolution": 512
+          "a": float(config.get("midas_settings.a", 6.283185307179586)),
+          "bg_threshold": float(config.get("midas_settings.bg_threshold", 0.1)),
+          "resolution": int(config.get("midas_settings.resolution", 512))
         }
       },
       "17": {
         "class_type": "ControlNetApplyAdvanced",
         "inputs": {
-          "strength": 0.45,
-          "start_percent": 0.0,
-          "end_percent": 1.0,
+          "strength": float(config.get("controlnet_settings.strength", 0.45)),
+          "start_percent": float(config.get("controlnet_settings.start_percent", 0.0)),
+          "end_percent": float(config.get("controlnet_settings.end_percent", 1.0)),
           "positive": ["6", 0],
           "negative": ["7", 0],
           "control_net": ["15", 0],
@@ -175,7 +182,8 @@ def run_inpainting(uploaded_filename, seed, prompt):
 def analyze_pixels(img_data):
     import io
     img = PIL.Image.open(io.BytesIO(img_data)).convert('RGB')
-    orig = PIL.Image.open("data/house.jpg").convert('RGB')
+    default_house = config.get("local_paths.default_house_image", "data/house.jpg")
+    orig = PIL.Image.open(default_house).convert('RGB')
     
     w, h = orig.size
     pixels_orig = orig.load()
@@ -198,7 +206,8 @@ def analyze_pixels(img_data):
     return count, (sum_r/count, sum_g/count, sum_b/count) if count > 0 else (0, 0, 0)
 
 if __name__ == '__main__':
-    img_name = upload_image("data/house.jpg")
+    default_house = config.get("local_paths.default_house_image", "data/house.jpg")
+    img_name = upload_image(default_house)
     
     # Shasta White new prompt
     new_prompt = "shasta white, bright clean white asphalt shingles roof, light grey shadows, white color"

@@ -17,7 +17,7 @@ A premium Next.js web application designed to allow users to upload an image of 
 
 For a complete step-by-step model setup guide, see [LOCAL_AI_SETUP.md](file:///home/gh-wsl/github_repos/personal/roof_tile_visualizer/docs/LOCAL_AI_SETUP.md).
 
-For production Vertex AI Custom Prediction Endpoint deployment, see [VERTEX_AI_SETUP.md](file:///home/gh-wsl/github_repos/personal/roof_tile_visualizer/docs/VERTEX_AI_SETUP.md).
+For production Agent Platform Custom Prediction Endpoint deployment, see [AGENT_PLATFORM_SETUP.md](file:///home/gh-wsl/github_repos/personal/roof_tile_visualizer/docs/AGENT_PLATFORM_SETUP.md).
 
 1. Clone and install ComfyUI:
    ```bash

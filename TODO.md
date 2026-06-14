@@ -9,7 +9,7 @@ This file outlines the features and fixes that are currently outstanding, their 
 
 ---
 
-## 1. ComfyUI True Inpainting Workflow & Vertex AI Migration
+## 1. ComfyUI True Inpainting Workflow & Agent Platform Migration
 * **Issue with Current State:** 
   The Next.js backend (`app/api/generate/route.ts`) queues a simple whole-image Image-to-Image workflow using a base SDXL model with `denoise: 0.85` on a local ComfyUI instance. This modifies the entire image rather than targeting only the roof, and requires the user to run a local GPU server.
 * **Proposed Interim Approach (Perfecting Local AI):** 
@@ -18,9 +18,9 @@ This file outlines the features and fixes that are currently outstanding, their 
   - `[x]` Load a proper SDXL Inpainting checkpoint (such as `sd_xl_inpainting_0.1.safetensors`).
   - `[x]` Integrate a ControlNet Depth SDXL node with the original image to preserve structural details.
   - `[x]` Save this perfect node setup as "API Format" JSON and replace the placeholder in `app/api/generate/route.ts`.
-* **Proposed Long-Term Approach (Vertex AI Production):**
-  - `[ ]` To remove the local GPU dependency for production, deploy the exact finalized Hugging Face models (SDXL + ControlNet) to a Google Cloud Vertex AI endpoint via Model Garden.
-  - `[ ]` Update the Next.js API route (`app/api/generate/route.ts`) to securely send the image to Vertex AI instead of `127.0.0.1:8188`, using your GCP credits.
+* **Proposed Long-Term Approach (Agent Platform Production):**
+  - [x] To remove the local GPU dependency for production, deploy the exact finalized Hugging Face models (SDXL + ControlNet) to a Google Cloud Agent Platform endpoint via Model Garden.
+  - [x] Update the Next.js API route (`app/api/generate/route.ts`) to securely send the image to Agent Platform instead of `127.0.0.1:8188`, using your GCP credits.
 
 ## 2. Supabase Backend Integration
 * **Issue with Current State:** 
@@ -55,3 +55,13 @@ This file outlines the features and fixes that are currently outstanding, their 
 * **Proposed Long-Term Approach:** 
   Refactor `README.md` to be a comprehensive developer guide.
 - `[x]` Update `README.md` to cover dependencies installation, environment variables setup (e.g., Supabase credentials, ComfyUI URL), local test executions (`test_local_ai.py`), and running the Next.js development server.
+
+## 6. Next.js Production Deployment (Google Cloud Run)
+* **Issue with Current State:** 
+  The Next.js application only runs locally. For production, it needs to be containerized and deployed. To avoid network egress charges and minimize latency with the Agent Platform endpoint, the application needs to be deployed in the same GCP region.
+* **Proposed Long-Term Approach:** 
+  Deploy the Next.js application to Google Cloud Run:
+  - `[ ]` Create a production-ready `Dockerfile` for the Next.js application.
+  - `[ ]` Configure Google Cloud Artifact Registry and Cloud Build to build and host the container images.
+  - `[ ]` Deploy the application container to Google Cloud Run in the same GCP region (e.g., `us-central1`) as the Agent Platform endpoints.
+  - `[ ]` Bind the production custom domain and configure production environment variables (e.g., Supabase keys, Agent Platform target project and endpoint configuration).

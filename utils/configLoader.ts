@@ -44,6 +44,12 @@ export const configs = {
     positive_prompt_template: rawConfigs.prompts.positive_prompt_template.value,
     negative_prompt: rawConfigs.prompts.negative_prompt.value,
     default_tile_prompt: rawConfigs.prompts.default_tile_prompt.value,
+  },
+  vertex_ai_settings: {
+    use_vertex_ai: process.env.VERTEX_USE_ENDPOINT === 'true' || ((rawConfigs as any).vertex_ai_settings?.use_vertex_ai?.value ?? false),
+    project_id: process.env.VERTEX_PROJECT_ID || ((rawConfigs as any).vertex_ai_settings?.project_id?.value ?? ''),
+    location: process.env.VERTEX_LOCATION || ((rawConfigs as any).vertex_ai_settings?.location?.value ?? 'us-central1'),
+    endpoint_id: process.env.VERTEX_ENDPOINT_ID || ((rawConfigs as any).vertex_ai_settings?.endpoint_id?.value ?? ''),
   }
 };
 export default configs;

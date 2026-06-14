@@ -5,7 +5,7 @@ You have been invoked to participate in a "Divide and Conquer" workflow to build
 ## Architecture & Background
 - **Frontend**: Next.js App Router, React, Vanilla CSS (premium dark mode, glassmorphism).
 - **Backend (Current Interim state)**: The Next.js API route (`app/api/generate/route.ts`) securely proxies image generation requests to a local ComfyUI server (`127.0.0.1:8188`) via an image proxy to avoid browser CORS/loading issues.
-- **Backend (Future Production state)**: The ComfyUI pipeline will be replaced by Vertex AI endpoints (using GCP credits) hosting Hugging Face models (SDXL + ControlNet).
+- **Backend (Future Production state)**: The ComfyUI pipeline will be replaced by Agent Platform endpoints (formerly Vertex AI, using GCP credits) hosting Hugging Face models (SDXL + ControlNet).
 - **Database/Auth**: Will be handled by Supabase (PostgreSQL, Storage, Auth).
 
 ## Important Documents

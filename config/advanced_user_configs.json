@@ -120,5 +120,23 @@
       "value": "red terracotta spanish roof tiles",
       "description": "Default prompt to fall back to when no tile prompt is explicitly provided."
     }
+  },
+  "vertex_ai_settings": {
+    "use_vertex_ai": {
+      "value": false,
+      "description": "Enable or disable Agent Platform (formerly Vertex AI) prediction endpoint usage."
+    },
+    "project_id": {
+      "value": "",
+      "description": "Google Cloud Project ID."
+    },
+    "location": {
+      "value": "us-central1",
+      "description": "GCP location/region where the endpoint is deployed."
+    },
+    "endpoint_id": {
+      "value": "",
+      "description": "Agent Platform (formerly Vertex AI) custom prediction endpoint ID."
+    }
   }
 }
